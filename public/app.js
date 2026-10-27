@@ -68,6 +68,12 @@ function initSession(role, room) {
   $("roleBadge").textContent = isBaby ? "👶 baby device" : "📱 parent device";
   $("codeBadge").textContent = `code ${room}`;
 
+  // Remember this pairing so the app reconnects automatically next time — no
+  // need to re-enter the code. "Unpair" clears it.
+  try {
+    localStorage.setItem("bibino-pairing", JSON.stringify({ room, role }));
+  } catch {}
+
   const statusEl = $("status");
   const overlay = $("overlay");
   const startBtn = $("start");
@@ -582,7 +588,30 @@ function initSession(role, room) {
     try { wakeLock && wakeLock.release(); } catch {}
     if (localStream) localStream.getTracks().forEach((t) => t.stop());
   }
+
+  // Share a one-tap pairing link for the OTHER device (opposite role + this code).
+  // The second device opens it, joins, and remembers the pairing — no typing.
+  const shareBtn = $("share");
+  shareBtn.hidden = false;
+  shareBtn.onclick = async () => {
+    const otherRole = isBaby ? "parent" : "baby";
+    const link = `${location.origin}/?role=${otherRole}&room=${encodeURIComponent(room)}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Baby Monitor pairing", url: link });
+      } else {
+        await navigator.clipboard.writeText(link);
+        shareBtn.textContent = "✓ Link copied";
+        setTimeout(() => (shareBtn.textContent = "📎 Pair a device"), 2000);
+      }
+    } catch {
+      prompt("Open this link on the other device:", link);
+    }
+  };
+
+  // Unpair: forget the saved pairing and return to the code screen.
   $("leave").onclick = () => {
+    try { localStorage.removeItem("bibino-pairing"); } catch {}
     teardown();
     location.search = "";
   };
@@ -601,5 +630,15 @@ if ("serviceWorker" in navigator) {
 
 const role = qs.get("role");
 const room = qs.get("room");
-if ((role === "baby" || role === "parent") && room) initSession(role, room);
-else initLanding();
+let savedPairing = null;
+try {
+  savedPairing = JSON.parse(localStorage.getItem("bibino-pairing") || "null");
+} catch {}
+
+if ((role === "baby" || role === "parent") && room) {
+  initSession(role, room); // explicit link/code
+} else if (savedPairing && savedPairing.room && (savedPairing.role === "baby" || savedPairing.role === "parent")) {
+  initSession(savedPairing.role, savedPairing.room); // reconnect to the remembered pairing — no code
+} else {
+  initLanding();
+}

@@ -31,13 +31,15 @@
         </div>
 
         <label class="field">
-          <span>Pairing code — the <strong>same</strong> on both devices</span>
+          <span>Pairing code (auto-generated)</span>
           <div class="row">
             <input id="room" type="text" autocomplete="off" autocapitalize="characters"
                    spellcheck="false" placeholder="e.g. K7M2QP4R" />
             <button id="gen" class="ghost" type="button" title="Generate a new code">↻</button>
           </div>
         </label>
+        <p class="muted small">Pick a role, then use <strong>“📎 Pair a device”</strong> to send the link to the
+          other device — it won't need to type this. You only pair once; both devices reconnect automatically after.</p>
       </div>
     </main>
 
@@ -87,7 +89,8 @@
         <!-- Parent: open/close the talk-back microphone -->
         <button id="talk" class="talk" type="button" hidden>🎤 Mic off</button>
         <button id="alerts" class="ghost" type="button" hidden>🔔 Enable alerts</button>
-        <button id="leave" class="ghost" type="button">Leave</button>
+        <button id="share" class="ghost" type="button" hidden>📎 Pair a device</button>
+        <button id="leave" class="ghost" type="button">Unpair</button>
       </div>
     </main>
 
