@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1020" />
+    <title>Bibino-LAN · Baby Monitor</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Baby Monitor" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <!-- Landing (role/room picker) -->
+    <main id="landing" class="screen" hidden>
+      <div class="card">
+        <h1>Baby&nbsp;Monitor</h1>
+        <p class="muted">Self-hosted · stays on your local network</p>
+
+        <div class="roles">
+          <button id="asBaby" class="primary" type="button">
+            <span class="emoji">👶</span> This is the <strong>baby</strong> device
+            <small>camera + microphone, placed near the baby</small>
+          </button>
+          <button id="asParent" class="primary" type="button">
+            <span class="emoji">📱</span> This is the <strong>parent</strong> device
+            <small>watch &amp; listen, open the mic to talk back</small>
+          </button>
+        </div>
+
+        <label class="field">
+          <span>Pairing code — the <strong>same</strong> on both devices</span>
+          <div class="row">
+            <input id="room" inputmode="numeric" autocomplete="off" placeholder="e.g. 4821" />
+            <button id="gen" class="ghost" type="button" title="Generate a code">↻</button>
+          </div>
+        </label>
+      </div>
+    </main>
+
+    <!-- Session -->
+    <main id="session" class="screen" hidden>
+      <div id="videoWrap" class="video-wrap">
+        <video id="remoteVideo" playsinline autoplay muted></video>
+        <video id="localVideo" class="pip" playsinline autoplay muted hidden></video>
+        <audio id="remoteAudio" autoplay hidden></audio>
+
+        <!-- Parent: live baby status + sound-level meter -->
+        <div id="statusPill" class="status-pill" hidden>
+          <span id="statusDot" class="dot"></span>
+          <span id="statusText">Quiet</span>
+          <span class="meter"><i id="meterFill"></i><b id="meterThresh"></b></span>
+        </div>
+
+        <div id="overlay" class="overlay">
+          <button id="start" class="start" type="button" hidden>▶︎ Start</button>
+          <div id="status" class="status">Starting…</div>
+        </div>
+
+        <!-- Baby: black screen so the device light does not disturb the baby -->
+        <div id="dimOverlay" class="dim" hidden><span>Screen dimmed — tap to wake</span></div>
+      </div>
+
+      <details class="logbox">
+        <summary>Diagnostic</summary>
+        <pre id="log"></pre>
+      </details>
+
+      <div class="controls">
+        <span id="roleBadge" class="badge"></span>
+        <span id="codeBadge" class="badge"></span>
+
+        <!-- Parent: noise sensitivity (1–10), drives the gate + alert -->
+        <div id="threshWrap" class="stepper" hidden>
+          <span class="stepper-label">Sensitivity</span>
+          <button id="sensDown" class="step-btn" type="button" aria-label="less sensitive">−</button>
+          <span id="threshVal" class="stepper-val">7</span>
+          <button id="sensUp" class="step-btn" type="button" aria-label="more sensitive">+</button>
+        </div>
+
+        <!-- Baby: dim the screen -->
+        <button id="dim" class="ghost" type="button" hidden>🌙 Dim</button>
+
+        <!-- Parent: open/close the talk-back microphone -->
+        <button id="talk" class="talk" type="button" hidden>🎤 Mic off</button>
+        <button id="alerts" class="ghost" type="button" hidden>🔔 Enable alerts</button>
+        <button id="leave" class="ghost" type="button">Leave</button>
+      </div>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

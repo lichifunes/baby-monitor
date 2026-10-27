@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Generated at runtime — NEVER commit (contains private TLS key + VAPID private key)
+certs/
+*.pem
+vapid.json
+
+# Misc
+npm-debug.log*
+.DS_Store

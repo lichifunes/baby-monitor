@@ -1,0 +1,20 @@
+{
+  "name": "bibino-lan",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Self-hosted LAN baby monitor (WebRTC). Clean reimplementation inspired by Bibino's architecture.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "certs": "node generate-cert.js"
+  },
+  "dependencies": {
+    "selfsigned": "2.4.1",
+    "web-push": "3.6.7",
+    "ws": "8.18.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
