@@ -1,0 +1,31 @@
+name: build-image
+
+# Build the container image and publish it to GitHub Container Registry (GHCR)
+# on every push to main, so Portainer can pull ghcr.io/lichifunes/baby-monitor.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/lichifunes/baby-monitor:latest
+            ghcr.io/lichifunes/baby-monitor:${{ github.sha }}
