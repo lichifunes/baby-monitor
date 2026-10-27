@@ -633,6 +633,97 @@ function initSession(role, room) {
   // Signaling connects on Start (see the Start handler).
 }
 
+// ---- QR scanner (shared by the landing and the pairing dialog) ------------
+// Uses the native BarcodeDetector when available (Android), otherwise decodes
+// camera frames with the vendored jsQR (works on iOS/WebKit too).
+let scanStream = null;
+let scanRAF = null;
+
+function closeScanner() {
+  if (scanRAF) cancelAnimationFrame(scanRAF);
+  scanRAF = null;
+  if (scanStream) scanStream.getTracks().forEach((t) => t.stop());
+  scanStream = null;
+  $("scanner").hidden = true;
+}
+
+function acceptScanned(text) {
+  let u;
+  try {
+    u = new URL(text);
+  } catch {
+    return false;
+  }
+  // Only follow a pairing link for THIS monitor (same origin), never an arbitrary
+  // scanned URL. Validate the role/room before navigating.
+  if (u.origin !== location.origin) {
+    $("scanMsg").textContent = "Not a pairing code for this monitor.";
+    return false;
+  }
+  const r = u.searchParams.get("role");
+  const room = u.searchParams.get("room");
+  if ((r === "baby" || r === "parent") && room) {
+    closeScanner();
+    location.href = u.href; // same-origin pairing link → joins and is remembered
+    return true;
+  }
+  return false;
+}
+
+async function openScanner() {
+  const video = $("scanVideo");
+  const msg = $("scanMsg");
+  $("scanner").hidden = false;
+  msg.textContent = "Point at the other device's QR…";
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+  } catch {
+    msg.textContent = "Cannot access the camera — grant permission and try again.";
+    return;
+  }
+  video.srcObject = scanStream;
+  await video.play().catch(() => {});
+
+  let detector = null;
+  if ("BarcodeDetector" in window) {
+    try {
+      detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+    } catch {}
+  }
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+  const tick = async () => {
+    if (!scanStream) return;
+    if (video.readyState >= 2 && video.videoWidth) {
+      let text = null;
+      if (detector) {
+        try {
+          const codes = await detector.detect(video);
+          if (codes && codes[0]) text = codes[0].rawValue;
+        } catch {}
+      } else {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const res = jsQR(img.data, img.width, img.height, { inversionAttempts: "dontInvert" });
+        if (res) text = res.data;
+      }
+      if (text && acceptScanned(text)) return;
+    }
+    scanRAF = requestAnimationFrame(tick);
+  };
+  scanRAF = requestAnimationFrame(tick);
+}
+
+$("scanLanding").onclick = openScanner;
+$("scanCancel").onclick = closeScanner;
+$("qrScanBtn").onclick = () => {
+  $("qrModal").hidden = true;
+  openScanner();
+};
+
 // ---- Entry ----------------------------------------------------------------
 // Register the service worker (enables PWA install + push). Harmless if absent.
 if ("serviceWorker" in navigator) {

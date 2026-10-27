@@ -38,8 +38,10 @@
             <button id="gen" class="ghost" type="button" title="Generate a new code">↻</button>
           </div>
         </label>
-        <p class="muted small">Pick a role, then use <strong>“📎 Pair a device”</strong> to send the link to the
-          other device — it won't need to type this. You only pair once; both devices reconnect automatically after.</p>
+        <p class="muted small">Pick a role, then use <strong>“📎 Pair a device”</strong> to show a QR the other
+          device scans — no typing. You only pair once; both devices reconnect automatically after.</p>
+
+        <button id="scanLanding" class="ghost scan-cta" type="button">📷 Scan a QR code to join</button>
       </div>
     </main>
 
@@ -102,13 +104,23 @@
         <img id="qrImg" class="qr" alt="Pairing QR code" width="220" height="220" />
         <div id="qrLink" class="qr-link"></div>
         <div class="row">
+          <button id="qrScanBtn" class="ghost" type="button">📷 Scan</button>
           <button id="qrCopy" class="ghost" type="button">Copy link</button>
           <button id="qrClose" type="button">Done</button>
         </div>
       </div>
     </div>
 
+    <!-- In-app QR scanner -->
+    <div id="scanner" class="scanner" hidden>
+      <video id="scanVideo" playsinline muted></video>
+      <div class="scan-frame"></div>
+      <p id="scanMsg" class="scan-msg">Point at the other device's QR…</p>
+      <button id="scanCancel" class="ghost" type="button">Cancel</button>
+    </div>
+
     <script src="/vendor/qrcode.js"></script>
+    <script src="/vendor/jsqr.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>

@@ -101,6 +101,28 @@ button { font: inherit; cursor: pointer; border: none; border-radius: 12px; }
 .dim span { transition: opacity 1.5s; }
 .dim.dark span { opacity: 0; } /* fully black = minimal light (OLED) */
 
+/* Scan CTA on the landing */
+.scan-cta { width: 100%; margin-top: 14px; padding: 14px; }
+
+/* Full-screen QR scanner */
+.scanner {
+  position: fixed; inset: 0; z-index: 60; background: #000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.scanner video { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.scan-frame {
+  position: relative; z-index: 1; width: 66vmin; height: 66vmin; max-width: 300px; max-height: 300px;
+  border: 3px solid rgba(255, 255, 255, .9); border-radius: 18px; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .45);
+}
+.scan-msg {
+  position: absolute; z-index: 2; bottom: calc(96px + env(safe-area-inset-bottom)); left: 16px; right: 16px;
+  text-align: center; color: #fff; background: rgba(0, 0, 0, .5); padding: 10px 14px; border-radius: 12px; margin: 0;
+}
+.scanner .ghost {
+  position: absolute; z-index: 2; bottom: calc(32px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, .15); color: #fff; padding: 12px 28px;
+}
+
 /* QR pairing modal */
 .modal {
   position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
