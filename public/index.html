@@ -52,11 +52,17 @@
         <video id="localVideo" class="pip" playsinline autoplay muted hidden></video>
         <audio id="remoteAudio" autoplay hidden></audio>
 
-        <!-- Parent: live baby status + sound-level meter -->
-        <div id="statusPill" class="status-pill" hidden>
-          <span id="statusDot" class="dot"></span>
-          <span id="statusText">Quiet</span>
-          <span class="meter"><i id="meterFill"></i><b id="meterThresh"></b></span>
+        <!-- Top overlay bar: role/status (left) + quit (right) -->
+        <div class="top-bar">
+          <div class="top-left">
+            <span id="roleBadge" class="badge"></span>
+            <div id="statusPill" class="status-pill" hidden>
+              <span id="statusDot" class="dot"></span>
+              <span id="statusText">Quiet</span>
+              <span class="meter"><i id="meterFill"></i><b id="meterThresh"></b></span>
+            </div>
+          </div>
+          <button id="quit" class="quit-btn" type="button" aria-label="Stop monitoring">✕</button>
         </div>
 
         <div id="overlay" class="overlay">
@@ -68,15 +74,8 @@
         <div id="dimOverlay" class="dim" hidden><span>Screen dimmed — tap to wake</span></div>
       </div>
 
-      <details class="logbox">
-        <summary>Diagnostic</summary>
-        <pre id="log"></pre>
-      </details>
-
+      <!-- Bottom action bar -->
       <div class="controls">
-        <span id="roleBadge" class="badge"></span>
-        <span id="codeBadge" class="badge"></span>
-
         <!-- Parent: noise sensitivity (1–10), drives the gate + alert -->
         <div id="threshWrap" class="stepper" hidden>
           <span class="stepper-label">Sensitivity</span>
@@ -85,14 +84,29 @@
           <button id="sensUp" class="step-btn" type="button" aria-label="more sensitive">+</button>
         </div>
 
-        <!-- Baby: dim the screen -->
-        <button id="dim" class="ghost" type="button" hidden>🌙 Dim</button>
+        <div class="actions">
+          <button id="dim" class="action" type="button" hidden><span class="ico">🌙</span><span class="lbl">Dim</span></button>
+          <button id="talk" class="action talk" type="button" hidden><span class="ico">🎤</span><span class="lbl">Mic off</span></button>
+          <button id="alerts" class="action" type="button" hidden><span class="ico">🔔</span><span class="lbl">Alerts</span></button>
+          <button id="share" class="action" type="button" hidden><span class="ico">📎</span><span class="lbl">Pair</span></button>
+        </div>
+      </div>
 
-        <!-- Parent: open/close the talk-back microphone -->
-        <button id="talk" class="talk" type="button" hidden>🎤 Mic off</button>
-        <button id="alerts" class="ghost" type="button" hidden>🔔 Enable alerts</button>
-        <button id="share" class="ghost" type="button" hidden>📎 Pair a device</button>
-        <button id="leave" class="ghost" type="button">Unpair</button>
+      <details class="logbox">
+        <summary>Diagnostic</summary>
+        <pre id="log"></pre>
+      </details>
+    </main>
+
+    <!-- Stopped -->
+    <main id="stopped" class="screen" hidden>
+      <div class="card">
+        <h1>Monitoring stopped</h1>
+        <p class="muted">The connection is closed. Your pairing is kept.</p>
+        <div class="roles">
+          <button id="resumeBtn" class="primary" type="button"><span class="emoji">▶︎</span> Resume monitoring</button>
+        </div>
+        <button id="stoppedUnpair" class="ghost scan-cta" type="button">Unpair this device</button>
       </div>
     </main>
 

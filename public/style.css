@@ -55,19 +55,34 @@ button { font: inherit; cursor: pointer; border: none; border-radius: 12px; }
 #gen { flex: 0 0 auto; width: 54px; font-size: 20px; }
 
 /* Session */
-.video-wrap { position: relative; flex: 1; background: #000; display: flex; }
-#remoteVideo { width: 100%; height: 100%; object-fit: contain; background: #000; }
+#session { background: #000; }
+.video-wrap { position: relative; flex: 1; background: #000; display: flex; overflow: hidden; }
+/* Fill the window edge-to-edge (no letterbox) for an integrated look. */
+#remoteVideo { width: 100%; height: 100%; object-fit: cover; background: #000; }
 .pip {
-  position: absolute; right: 12px; bottom: 12px; width: 30%; max-width: 180px;
-  border-radius: 10px; border: 2px solid rgba(255,255,255,.4); object-fit: cover; aspect-ratio: 16/9;
+  position: absolute; right: 12px; bottom: 12px; width: 28%; max-width: 160px; z-index: 4;
+  border-radius: 12px; border: 2px solid rgba(255,255,255,.5); object-fit: cover; aspect-ratio: 16/9;
+  box-shadow: 0 4px 16px rgba(0,0,0,.5);
 }
-.overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(5,8,18,.6); }
+.overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(5,8,18,.6); z-index: 6; }
 .status { color: var(--fg); font-size: 18px; padding: 12px 18px; background: rgba(0,0,0,.4); border-radius: 12px; }
-.controls {
-  display: flex; align-items: center; gap: 10px; padding: 14px 16px;
-  padding-bottom: calc(14px + env(safe-area-inset-bottom)); background: var(--card); flex-wrap: wrap;
+
+/* Top overlay bar over the video */
+.top-bar {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 7; pointer-events: none;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: calc(12px + env(safe-area-inset-top)) 12px 12px;
+  background: linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,0));
 }
-.badge { background: #0d1326; color: var(--muted); padding: 8px 12px; border-radius: 999px; font-size: 13px; }
+.top-bar > * { pointer-events: auto; }
+.top-left { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.quit-btn {
+  width: 42px; height: 42px; border-radius: 50%; background: rgba(0,0,0,.5); color: #fff;
+  font-size: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);
+}
+.quit-btn:active { background: var(--live); }
+
+.badge { background: rgba(0,0,0,.5); color: #fff; padding: 7px 12px; border-radius: 999px; font-size: 13px; backdrop-filter: blur(4px); }
 .start {
   background: var(--accent); color: #fff; font-size: 20px; font-weight: 700;
   padding: 18px 42px; border-radius: 999px; margin-bottom: 14px;
@@ -75,9 +90,8 @@ button { font: inherit; cursor: pointer; border: none; border-radius: 12px; }
 
 /* Baby status pill (parent view) */
 .status-pill {
-  position: absolute; top: calc(12px + env(safe-area-inset-top)); left: 12px; z-index: 5;
   display: flex; align-items: center; gap: 8px;
-  background: rgba(5,8,18,.65); color: var(--fg); padding: 8px 12px; border-radius: 999px; font-size: 14px;
+  background: rgba(0,0,0,.5); color: var(--fg); padding: 7px 12px; border-radius: 999px; font-size: 14px; backdrop-filter: blur(4px);
 }
 .status-pill .dot { width: 10px; height: 10px; border-radius: 50%; background: #3ad29f; transition: background .2s; }
 .status-pill.noise .dot { background: var(--live); animation: pulse 1s infinite; }
@@ -139,15 +153,25 @@ button { font: inherit; cursor: pointer; border: none; border-radius: 12px; }
 .qr-link { font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; color: var(--muted); word-break: break-all; }
 #qrClose { background: var(--accent); color: #fff; border: none; font-weight: 600; }
 
-.talk {
-  background: var(--accent); color: #fff; padding: 14px 20px; font-weight: 600; margin-left: auto;
-  touch-action: none;
-  /* Stop the iOS long-press text selection / callout magnifier on hold-to-talk. */
-  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+/* Bottom action bar */
+.controls {
+  display: flex; flex-direction: column; align-items: stretch; gap: 12px;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  background: var(--card);
 }
-.talk.live { background: var(--live); transform: scale(1.03); }
-.controls .ghost { margin-left: auto; }
-.talk + .ghost { margin-left: 0; }
+.actions { display: flex; gap: 10px; }
+.action {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: #1d2644; color: var(--fg); border: 1px solid #2a3350;
+  padding: 12px 6px; border-radius: 14px; font-size: 12px; min-height: 60px; justify-content: center;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation;
+}
+.action .ico { font-size: 22px; line-height: 1; }
+.action .lbl { font-size: 12px; }
+.action:active { border-color: var(--accent); }
+.action.talk { touch-action: none; }
+.action.talk.live { background: var(--live); border-color: var(--live); color: #fff; }
+.stepper { align-self: center; }
 
 /* Diagnostic log */
 .logbox { background: #0d1326; color: var(--muted); font-size: 12px; border-top: 1px solid #2a3350; }

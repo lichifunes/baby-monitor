@@ -29,6 +29,7 @@ const $ = (id) => document.getElementById(id);
 function show(screen) {
   $("landing").hidden = screen !== "landing";
   $("session").hidden = screen !== "session";
+  $("stopped").hidden = screen !== "stopped";
 }
 
 // A high-entropy pairing code is the room's shared secret. 8 chars from a
@@ -65,8 +66,7 @@ function initSession(role, room) {
   const isBaby = role === "baby";
   const polite = !isBaby;
 
-  $("roleBadge").textContent = isBaby ? "👶 baby device" : "📱 parent device";
-  $("codeBadge").textContent = `code ${room}`;
+  $("roleBadge").textContent = isBaby ? "👶 Baby" : "📱 Parent";
 
   // Remember this pairing so the app reconnects automatically next time — no
   // need to re-enter the code. "Unpair" clears it.
@@ -392,6 +392,8 @@ function initSession(role, room) {
   // --- talk-back (parent): mic opens for 8 s with a countdown, then auto-closes ---
   function setupMicToggle(audioTrack) {
     const btn = $("talk");
+    const ico = btn.querySelector(".ico");
+    const lbl = btn.querySelector(".lbl");
     btn.hidden = false;
     const OPEN_SECONDS = 8;
     let countdown = null;
@@ -401,18 +403,20 @@ function initSession(role, room) {
       countdown = null;
       audioTrack.enabled = false;
       btn.classList.remove("live");
-      btn.textContent = "🎤 Mic off";
+      ico.textContent = "🎤";
+      lbl.textContent = "Mic off";
     };
     const open = () => {
       audioTrack.enabled = true;
       btn.classList.add("live");
+      ico.textContent = "🎙️";
       let remaining = OPEN_SECONDS;
-      btn.textContent = `🎙️ Talking · ${remaining}s`;
+      lbl.textContent = `Talking ${remaining}s`;
       clearInterval(countdown);
       countdown = setInterval(() => {
         remaining -= 1;
         if (remaining <= 0) return close(); // auto-close for safety
-        btn.textContent = `🎙️ Talking · ${remaining}s`;
+        lbl.textContent = `Talking ${remaining}s`;
       }, 1000);
     };
 
@@ -510,13 +514,14 @@ function initSession(role, room) {
   // gets its own user gesture (chaining it with getUserMedia breaks Start on iOS).
   function setupAlertsButton() {
     const btn = $("alerts");
+    const lbl = btn.querySelector(".lbl");
     if (!("Notification" in window)) {
       btn.hidden = true; // e.g. iOS Safari tab (not installed to home screen)
       return;
     }
     btn.hidden = false;
     if (Notification.permission === "granted") {
-      btn.textContent = "🔔 Alerts on";
+      lbl.textContent = "Alerts on";
       btn.disabled = true;
       setupPush();
       return;
@@ -525,9 +530,9 @@ function initSession(role, room) {
       btn.disabled = true;
       await setupPush();
       if (Notification.permission === "granted") {
-        btn.textContent = "🔔 Alerts on";
+        lbl.textContent = "Alerts on";
       } else {
-        btn.textContent = "🔔 Enable alerts";
+        lbl.textContent = "Alerts";
         btn.disabled = false;
       }
     };
@@ -620,11 +625,11 @@ function initSession(role, room) {
     }
   };
 
-  // Unpair: forget the saved pairing and return to the code screen.
-  $("leave").onclick = () => {
-    try { localStorage.removeItem("bibino-pairing"); } catch {}
+  // Quit: stop monitoring but keep the pairing. Goes to the "stopped" screen,
+  // which offers Resume or Unpair. (Reloading cleanly re-inits the session.)
+  $("quit").onclick = () => {
     teardown();
-    location.search = "";
+    location.search = "?stopped=1";
   };
   window.addEventListener("pagehide", teardown);
 
@@ -730,6 +735,17 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js").catch((e) => console.log("SW register failed", e));
 }
 
+function initStopped() {
+  show("stopped");
+  $("resumeBtn").onclick = () => (location.search = ""); // reload → auto-resume
+  $("stoppedUnpair").onclick = () => {
+    try {
+      localStorage.removeItem("bibino-pairing");
+    } catch {}
+    location.search = "";
+  };
+}
+
 const role = qs.get("role");
 const room = qs.get("room");
 let savedPairing = null;
@@ -737,7 +753,9 @@ try {
   savedPairing = JSON.parse(localStorage.getItem("bibino-pairing") || "null");
 } catch {}
 
-if ((role === "baby" || role === "parent") && room) {
+if (qs.get("stopped")) {
+  initStopped();
+} else if ((role === "baby" || role === "parent") && room) {
   initSession(role, room); // explicit link/code
 } else if (savedPairing && savedPairing.room && (savedPairing.role === "baby" || savedPairing.role === "parent")) {
   initSession(savedPairing.role, savedPairing.room); // reconnect to the remembered pairing — no code
