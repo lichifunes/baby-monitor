@@ -31,16 +31,27 @@ function show(screen) {
   $("session").hidden = screen !== "session";
 }
 
+// A high-entropy pairing code is the room's shared secret. 8 chars from a
+// 31-symbol alphabet (~40 bits, ambiguous letters removed) resist online
+// guessing while staying typeable; devices can also just share the URL.
+function generateCode() {
+  const alphabet = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  return [...bytes].map((b) => alphabet[b % alphabet.length]).join("");
+}
+
 // ---- Landing --------------------------------------------------------------
 function initLanding() {
   show("landing");
   const roomInput = $("room");
-  roomInput.value = qs.get("room") || "";
+  // Default to a fresh strong code; keep any code passed in the URL.
+  roomInput.value = (qs.get("room") || generateCode()).toUpperCase();
   $("gen").onclick = () => {
-    roomInput.value = String(Math.floor(1000 + Math.random() * 9000));
+    roomInput.value = generateCode();
   };
   const go = (role) => {
-    const room = roomInput.value.trim();
+    const room = roomInput.value.trim().toUpperCase();
     if (!room) return roomInput.focus();
     location.search = `?role=${role}&room=${encodeURIComponent(room)}`;
   };

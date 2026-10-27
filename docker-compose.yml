@@ -1,19 +1,19 @@
 services:
-  bibino-lan:
+  baby-monitor:
     build: .
-    container_name: bibino-lan
-    # Host networking lets devices reach the server directly on the LAN and
-    # keeps WebRTC host ICE candidates routable. (On Docker Desktop/macOS/Windows,
-    # host networking is limited — use the ports mapping below instead.)
-    network_mode: host
+    image: ghcr.io/lichifunes/baby-monitor:latest
+    container_name: baby-monitor
     restart: unless-stopped
+    ports:
+      - "${PORT:-8443}:8443"
     environment:
       - PORT=8443
-      # Comma-separated hostnames/IPs to put in the TLS cert's subjectAltName.
-      # Required so phones (esp. iOS/WebKit) accept the cert. Set to your PC's LAN IP.
-      - CERT_HOSTS=${CERT_HOSTS:-192.168.1.31}
+      # REQUIRED: the server's LAN IP and/or hostname, comma-separated. It is
+      # written into the TLS certificate (SAN) so devices accept it. Set it via
+      # the environment or a local .env file (see .env.example) — never hardcode.
+      - CERT_HOSTS=${CERT_HOSTS:?set CERT_HOSTS to your server LAN IP/hostname, e.g. 192.168.1.50}
     volumes:
-      - ./certs:/app/certs
-    # If you cannot use host networking, comment out network_mode above and use:
-    # ports:
-    #   - "8443:8443"
+      - certs:/app/certs
+
+volumes:
+  certs:

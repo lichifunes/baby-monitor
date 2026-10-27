@@ -6,6 +6,9 @@ certs/
 *.pem
 vapid.json
 
+# Local environment (may hold your LAN IP); commit .env.example instead
+.env
+
 # Misc
 npm-debug.log*
 .DS_Store

@@ -41,7 +41,7 @@ export function ensureCerts(dir) {
   const hosts = hostList();
   const altNames = hosts.map((h) => (isIp(h) ? { type: 7, ip: h } : { type: 2, value: h }));
 
-  fs.mkdirSync(dir, { recursive: true });
+  fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
   const attrs = [{ name: "commonName", value: hosts.find((h) => !isIp(h)) || hosts[0] }];
   const pems = selfsigned.generate(attrs, {
     days: 3650,
@@ -52,8 +52,8 @@ export function ensureCerts(dir) {
       { name: "subjectAltName", altNames }
     ]
   });
-  fs.writeFileSync(keyPath, pems.private);
-  fs.writeFileSync(certPath, pems.cert);
+  fs.writeFileSync(keyPath, pems.private, { mode: 0o600 }); // private key — owner-only
+  fs.writeFileSync(certPath, pems.cert, { mode: 0o644 });
   console.log("  Generated self-signed certificate for:", hosts.join(", "));
   return { key: pems.private, cert: pems.cert };
 }

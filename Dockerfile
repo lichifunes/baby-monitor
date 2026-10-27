@@ -3,14 +3,19 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-# Install only production deps (ws + selfsigned) against the lockfile.
-COPY package.json package-lock.json* ./
-RUN npm install --omit=dev --no-audit --no-fund
+# Install only production deps against the lockfile (reproducible).
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --no-audit --no-fund
 
 COPY server.js generate-cert.js ./
 COPY public ./public
 
-# Certs are generated on first boot into this volume so they persist.
+# Run as the unprivileged built-in "node" user; it owns only the certs dir it
+# must write (TLS + VAPID keys are generated there on first boot).
+RUN mkdir -p /app/certs && chown node:node /app/certs
+USER node
+
+# Certs persist in this volume across restarts.
 VOLUME ["/app/certs"]
 
 ENV PORT=8443
