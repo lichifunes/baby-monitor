@@ -589,23 +589,34 @@ function initSession(role, room) {
     if (localStream) localStream.getTracks().forEach((t) => t.stop());
   }
 
-  // Share a one-tap pairing link for the OTHER device (opposite role + this code).
-  // The second device opens it, joins, and remembers the pairing — no typing.
+  // Pair the OTHER device by QR code (opposite role + this code). It scans with
+  // its native camera, opens the link, joins, and remembers the pairing — no typing.
   const shareBtn = $("share");
   shareBtn.hidden = false;
-  shareBtn.onclick = async () => {
-    const otherRole = isBaby ? "parent" : "baby";
-    const link = `${location.origin}/?role=${otherRole}&room=${encodeURIComponent(room)}`;
+  const pairingLink = () => `${location.origin}/?role=${isBaby ? "parent" : "baby"}&room=${encodeURIComponent(room)}`;
+
+  shareBtn.onclick = () => {
+    const link = pairingLink();
     try {
-      if (navigator.share) {
-        await navigator.share({ title: "Baby Monitor pairing", url: link });
-      } else {
-        await navigator.clipboard.writeText(link);
-        shareBtn.textContent = "✓ Link copied";
-        setTimeout(() => (shareBtn.textContent = "📎 Pair a device"), 2000);
-      }
+      // eslint-disable-next-line no-undef
+      const qr = qrcode(0, "M");
+      qr.addData(link);
+      qr.make();
+      $("qrImg").src = qr.createDataURL(6, 8);
+    } catch (e) {
+      log("QR render failed:", e.message);
+    }
+    $("qrLink").textContent = link;
+    $("qrModal").hidden = false;
+  };
+  $("qrClose").onclick = () => ($("qrModal").hidden = true);
+  $("qrCopy").onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(pairingLink());
+      $("qrCopy").textContent = "✓ Copied";
+      setTimeout(() => ($("qrCopy").textContent = "Copy link"), 2000);
     } catch {
-      prompt("Open this link on the other device:", link);
+      prompt("Open this link on the other device:", pairingLink());
     }
   };
 

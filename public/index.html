@@ -94,6 +94,21 @@
       </div>
     </main>
 
+    <!-- QR pairing dialog -->
+    <div id="qrModal" class="modal" hidden>
+      <div class="modal-card">
+        <h2>Pair a device</h2>
+        <p class="muted small">Scan this with the other device's camera, or share the link.</p>
+        <img id="qrImg" class="qr" alt="Pairing QR code" width="220" height="220" />
+        <div id="qrLink" class="qr-link"></div>
+        <div class="row">
+          <button id="qrCopy" class="ghost" type="button">Copy link</button>
+          <button id="qrClose" type="button">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/vendor/qrcode.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>

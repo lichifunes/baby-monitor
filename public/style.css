@@ -101,6 +101,22 @@ button { font: inherit; cursor: pointer; border: none; border-radius: 12px; }
 .dim span { transition: opacity 1.5s; }
 .dim.dark span { opacity: 0; } /* fully black = minimal light (OLED) */
 
+/* QR pairing modal */
+.modal {
+  position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+  background: rgba(5, 8, 18, .75); padding: 24px;
+}
+.modal-card {
+  width: 100%; max-width: 340px; background: var(--card); border-radius: var(--radius);
+  padding: 24px; text-align: center; box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+}
+.modal-card h2 { margin: 0 0 4px; font-size: 20px; }
+.modal-card .row { margin-top: 16px; gap: 10px; }
+.modal-card .row > button { flex: 1; padding: 12px; border-radius: 10px; }
+.qr { width: 220px; height: 220px; background: #fff; border-radius: 12px; padding: 10px; margin: 8px auto; image-rendering: pixelated; display: block; }
+.qr-link { font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; color: var(--muted); word-break: break-all; }
+#qrClose { background: var(--accent); color: #fff; border: none; font-weight: 600; }
+
 .talk {
   background: var(--accent); color: #fff; padding: 14px 20px; font-weight: 600; margin-left: auto;
   touch-action: none;

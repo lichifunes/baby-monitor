@@ -16,5 +16,8 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "qrcode-generator": "^2.0.4"
   }
 }
