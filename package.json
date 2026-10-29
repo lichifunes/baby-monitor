@@ -2,6 +2,7 @@
   "name": "bibino-lan",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Self-hosted LAN baby monitor (WebRTC). Clean reimplementation inspired by Bibino's architecture.",
   "type": "module",
   "main": "server.js",

@@ -154,4 +154,4 @@ Bundled offline, MIT-licensed (see each file's header):
 
 ## License
 
-For personal, self-hosted use.
+[MIT](LICENSE) © lichifunes
