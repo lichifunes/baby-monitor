@@ -20,8 +20,11 @@ servers.
 - **Noise push notifications** to the parent's lock screen (PWA; see limits below).
 - **Dim screen + wake lock** on the baby device, so its light doesn't disturb
   the baby while the camera keeps streaming.
-- Pairing by a high-entropy code on the same LAN; works fully offline (no
-  STUN/TURN — uses same-network host ICE candidates).
+- **Pair once with a QR code** (or a shared link) — no typing — then both
+  devices **reconnect automatically**. A ✕ Quit button stops monitoring and
+  keeps the pairing; Unpair forgets it.
+- Works fully offline (no STUN/TURN — same-network host ICE candidates); the
+  pairing code is high-entropy (CSPRNG).
 
 Not included: recording, activity log, lullabies, multi-camera, remote
 (off-LAN) access.
@@ -68,8 +71,18 @@ npm install
 CERT_HOSTS=<your-lan-ip> npm start
 ```
 
-Then open `https://<your-lan-ip>:8443` on both devices, accept the one-time
-certificate warning, use the **same code**, pick 👶 on one and 📱 on the other.
+Then open `https://<your-lan-ip>:8443` on both devices and accept the one-time
+certificate warning. Pairing is a one-time step (below).
+
+## Pairing
+
+1. On the first device, pick 👶 **Baby** or 📱 **Parent**, then tap **Start**.
+2. Tap **📎 Pair a device** to show a **QR code** (or copy the link).
+3. On the second device, tap **📷 Scan a QR code to join** — or scan the QR with
+   the phone's native camera, or open the link. It joins automatically; no code
+   is typed.
+4. Both devices **remember the pairing** and reconnect automatically next time.
+   Use **✕ Quit → Unpair** to forget it and pair with a different device.
 
 ## Configuration
 
@@ -131,6 +144,13 @@ cert), put the service behind a reverse proxy such as Caddy or Traefik.
   live WebRTC audio is suspended by iOS — you get a push *notification* on noise
   (installed PWA + trusted cert required), not continuous audio. The self-signed
   certificate shows a one-time warning until you front it with a real cert.
+
+## Third-party
+
+Bundled offline, MIT-licensed (see each file's header):
+
+- `public/vendor/qrcode.js` — QR Code Generator for JavaScript (Kazuhiko Arase)
+- `public/vendor/jsqr.js` — jsQR (Cosmo Wolfe)
 
 ## License
 
