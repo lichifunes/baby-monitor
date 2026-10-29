@@ -30,7 +30,7 @@ function hostList() {
 
 const isIp = (s) => /^\d{1,3}(\.\d{1,3}){3}$/.test(s);
 
-export function ensureCerts(dir) {
+export async function ensureCerts(dir) {
   const keyPath = path.join(dir, "key.pem");
   const certPath = path.join(dir, "cert.pem");
 
@@ -43,10 +43,13 @@ export function ensureCerts(dir) {
 
   fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
   const attrs = [{ name: "commonName", value: hosts.find((h) => !isIp(h)) || hosts[0] }];
-  const pems = selfsigned.generate(attrs, {
-    days: 3650,
+  const notAfterDate = new Date();
+  notAfterDate.setDate(notAfterDate.getDate() + 3650); // ~10 years
+  // selfsigned v5 is async and uses Node's native crypto (no node-forge).
+  const pems = await selfsigned.generate(attrs, {
     keySize: 2048,
     algorithm: "sha256",
+    notAfterDate,
     extensions: [
       { name: "basicConstraints", cA: true },
       { name: "subjectAltName", altNames }

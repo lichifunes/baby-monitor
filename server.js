@@ -318,11 +318,11 @@ function lanAddresses() {
   return out;
 }
 
-function start() {
+async function start() {
   initPush();
   let server;
   if (USE_TLS) {
-    const { key, cert } = ensureCerts(CERTS);
+    const { key, cert } = await ensureCerts(CERTS);
     server = https.createServer({ key, cert }, handleRequest);
   } else {
     server = http.createServer(handleRequest);
@@ -341,4 +341,7 @@ function start() {
   });
 }
 
-start();
+start().catch((err) => {
+  console.error("Failed to start:", err);
+  process.exit(1);
+});
