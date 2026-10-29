@@ -1,5 +1,5 @@
 # Lightweight self-hosted LAN baby monitor.
-FROM node:22-alpine
+FROM node:25-alpine
 
 WORKDIR /app
 
