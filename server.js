@@ -332,8 +332,12 @@ async function start() {
     const scheme = USE_TLS ? "https" : "http";
     console.log(`\n  Bibino-LAN baby monitor running (${scheme})\n`);
     console.log(`  On this machine:  ${scheme}://localhost:${PORT}`);
-    for (const ip of lanAddresses()) {
-      console.log(`  On your network:  ${scheme}://${ip}:${PORT}   <- open this on phones/tablets`);
+    // Prefer the operator-supplied CERT_HOSTS (the real reachable addresses);
+    // in a container, auto-detected interfaces are only the internal bridge IP.
+    const configured = (process.env.CERT_HOSTS || "").split(",").map((s) => s.trim()).filter(Boolean);
+    const addrs = configured.length ? configured : lanAddresses();
+    for (const h of addrs) {
+      console.log(`  On your network:  ${scheme}://${h}:${PORT}   <- open this on phones/tablets`);
     }
     if (USE_TLS) {
       console.log(`\n  (Self-signed certificate: your browser will warn once — accept it to continue.)\n`);

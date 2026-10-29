@@ -6,20 +6,31 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    groups:
+      # Bundle minor/patch bumps into a single PR to cut noise; majors stay separate.
+      npm-minor:
+        update-types: ["minor", "patch"]
     ignore:
-      # These are vendored by hand into public/vendor/ — a package bump does NOT
-      # update the shipped file, so skip version PRs (security alerts still fire).
+      # Vendored by hand into public/vendor/ — a package bump does NOT update the
+      # shipped file, so skip version PRs (security alerts still fire).
       - dependency-name: "qrcode-generator"
       - dependency-name: "jsqr"
 
-  # Keep GitHub Actions pinned versions current (addresses tag drift).
+  # Keep GitHub Actions current; group minor/patch, review majors individually.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      actions-minor:
+        update-types: ["minor", "patch"]
 
-  # Keep the Docker base image (node:22-alpine) current.
+  # Keep the Docker base image current, but don't chase major versions (stay on
+  # the chosen Node LTS line — no node:25-style "current" bumps).
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
