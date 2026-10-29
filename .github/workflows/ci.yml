@@ -1,0 +1,25 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # No test suite yet — syntax-check the source and audit production deps.
+      - name: Syntax check
+        run: node --check server.js && node --check generate-cert.js && node --check public/app.js && node --check public/sw.js
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high

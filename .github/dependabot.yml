@@ -1,0 +1,25 @@
+version: 2
+updates:
+  # npm dependencies (ws, web-push, selfsigned, …)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    ignore:
+      # These are vendored by hand into public/vendor/ — a package bump does NOT
+      # update the shipped file, so skip version PRs (security alerts still fire).
+      - dependency-name: "qrcode-generator"
+      - dependency-name: "jsqr"
+
+  # Keep GitHub Actions pinned versions current (addresses tag drift).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Keep the Docker base image (node:22-alpine) current.
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
